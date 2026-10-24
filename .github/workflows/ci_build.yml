@@ -40,6 +40,9 @@ jobs:
       )
     runs-on: macos-latest
     name: Build App
+    env:
+      GIT_ACTOR: ${{ github.actor }}
+      GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout Git Repository
         uses: actions/checkout@v6
