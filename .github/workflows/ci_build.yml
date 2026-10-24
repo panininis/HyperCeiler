@@ -58,11 +58,12 @@ jobs:
 
       
       - name: Create Gradle Properties for GitHub Packages
+        env:
+          GPR_USER: ${{ github.actor }}
+          GPR_KEY: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          touch signing.properties
-          echo "gpr.user=${{ github.actor }}" >> signing.properties
-          echo "gpr.key=${{ secrets.GITHUB_TOKEN }}" >> signing.properties
-
+          printf 'gpr.user=%s\n' "$GPR_USER" > signing.properties
+          printf 'gpr.key=%s\n' "$GPR_KEY" >> signing.properties
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
