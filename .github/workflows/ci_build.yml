@@ -56,6 +56,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Create Gradle Properties for GitHub Packages
+        run: |
+          touch signing.properties
+          echo "gpr.user=${{ github.actor }}" >> signing.properties
+          echo "gpr.key=${{ secrets.GITHUB_TOKEN }}" >> signing.properties
+
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
