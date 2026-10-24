@@ -111,8 +111,8 @@ jobs:
       - name: Build with Gradle (Debug)
         if: github.event_name == 'pull_request'
         env:
-          GIT_ACTOR: ${{ github.actor }}
-          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_ACTOR: ${{ secrets.gpruser }}
+          GIT_TOKEN: ${{ secrets.gprtoken }}
         run: |
           ./gradlew assembleDebug
           echo "IS_DEBUG=true" >> $GITHUB_ENV
