@@ -51,7 +51,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '25'
+          java-version: '17'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
@@ -73,6 +73,9 @@ jobs:
       - name: Build with Gradle (Canary)
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         shell: bash
+        env:
+          GIT_ACTOR: ${{ github.actor }}
+          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./gradlew assembleCanary
           echo "IS_DEBUG=false" >> $GITHUB_ENV
@@ -80,11 +83,15 @@ jobs:
       - name: Build with Gradle (Debug)
         if: github.event_name == 'pull_request'
         shell: bash
+        env:
+          GIT_ACTOR: ${{ github.actor }}
+          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./gradlew assembleDebug
           echo "IS_DEBUG=true" >> $GITHUB_ENV
 
       - name: Find APKs
+
         run: |
           if [ ${{ env.IS_DEBUG }} = true ]; then
             APK_FILE=$(find app/build/outputs/apk/debug -name '*.apk')
