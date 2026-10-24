@@ -109,7 +109,6 @@ jobs:
           fi
 
       - name: Build with Gradle (Debug)
-        if: github.event_name == 'pull_request'
         env:
           GIT_ACTOR: ${{ secrets.gpruser }}
           GIT_TOKEN: ${{ secrets.gprtoken }}
