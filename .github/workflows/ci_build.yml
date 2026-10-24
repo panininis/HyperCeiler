@@ -56,12 +56,12 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      
       - name: Create Gradle Properties for GitHub Packages
         run: |
           touch signing.properties
           echo "gpr.user=${{ github.actor }}" >> signing.properties
           echo "gpr.key=${{ secrets.GITHUB_TOKEN }}" >> signing.properties
-
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
@@ -70,36 +70,48 @@ jobs:
 
       - name: Create Sign File
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          ALIAS: ${{ secrets.ALIAS }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
         run: |
-          touch signing.properties
-          echo storePassword=${{ secrets.KEY_STORE_PASSWORD }} >> signing.properties
-          echo keyAlias=${{ secrets.ALIAS }} >> signing.properties
-          echo keyPassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
-          echo storeFile=../key.jks >> signing.properties
-          echo ${{ secrets.SIGNING_KEY }} | base64 --decode > key.jks
-          echo "GIT_ACTOR=${{ secrets.GIT_ACTOR }}" >> $GITHUB_ENV
-          echo "GIT_TOKEN=${{ secrets.GIT_TOKEN }}" >> $GITHUB_ENV
+          echo "storePassword=$KEY_STORE_PASSWORD" >> signing.properties
+          echo "keyAlias=$ALIAS" >> signing.properties
+          echo "keyPassword=$KEY_STORE_PASSWORD" >> signing.properties
+          echo "storeFile=../key.jks" >> signing.properties
+          echo "$SIGNING_KEY" | base64 --decode > key.jks
 
-      - name: Build with Gradle (Canary)
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-        shell: bash
+      - name: Check GitHub credentials
         env:
           GIT_ACTOR: ${{ github.actor }}
           GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./gradlew assembleCanary
-          echo "IS_DEBUG=false" >> $GITHUB_ENV
+          if [ -n "$GIT_ACTOR" ]; then
+            echo "GIT_ACTOR is set"
+          else
+            echo "GIT_ACTOR is EMPTY"
+          fi
+
+          if [ -n "$GIT_TOKEN" ]; then
+            echo "GIT_TOKEN is set"
+          else
+            echo "GIT_TOKEN is EMPTY"
+          fi
+
+          if [ -f signing.properties ]; then
+            echo "signing.properties exists"
+          else
+            echo "signing.properties is missing"
+          fi
 
       - name: Build with Gradle (Debug)
         if: github.event_name == 'pull_request'
-        shell: bash
         env:
           GIT_ACTOR: ${{ github.actor }}
           GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./gradlew assembleDebug
           echo "IS_DEBUG=true" >> $GITHUB_ENV
-
       - name: Find APKs
 
         run: |
