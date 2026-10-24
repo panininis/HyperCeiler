@@ -108,11 +108,12 @@ android {
     }
 
 val properties: Properties? = loadPropertiesFromFile("signing.properties")
-    ?.takeIf { it.getProperty("storeFile").orEmpty().isNotBlank() }    fun getString(propertyName: String, environmentName: String, prompt: String): String =
-        properties?.getProperty(propertyName)
-            ?: System.getenv(environmentName)
-            ?: System.console()?.readLine("\n$prompt: ").orEmpty()
+    ?.takeIf { it.getProperty("storeFile").orEmpty().isNotBlank() }
 
+fun getString(propertyName: String, environmentName: String, prompt: String): String =
+    properties?.getProperty(propertyName)
+        ?: System.getenv(environmentName)
+        ?: System.console()?.readLine("\n$prompt: ").orEmpty()
     val buildTimeSuffix: String by lazy {
         SimpleDateFormat("MMddHHmm").apply {
             timeZone = TimeZone.getTimeZone("Asia/Shanghai")
