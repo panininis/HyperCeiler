@@ -62,14 +62,20 @@ jobs:
           cache-overwrite-existing: true
 
       - name: Create Sign File
+        env:
+          GPR_USER: ${{ secrets.gpruser }}
+          GPR_TOKEN: ${{ secrets.gprtoken }}
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          ALIAS: ${{ secrets.ALIAS }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
         run: |
-          touch signing.properties
-          echo storePassword=${{ secrets.KEY_STORE_PASSWORD }} >> signing.properties
-          echo keyAlias=${{ secrets.ALIAS }} >> signing.properties
-          echo keyPassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
-          echo storeFile=../key.jks >> signing.properties
-          echo ${{ secrets.SIGNING_KEY }} | base64 --decode > key.jks
-
+          printf 'gpr.user=%s\n' "$GPR_USER" > signing.properties
+          printf 'gpr.key=%s\n' "$GPR_TOKEN" >> signing.properties
+          printf 'storePassword=%s\n' "$KEY_STORE_PASSWORD" >> signing.properties
+          printf 'keyAlias=%s\n' "$ALIAS" >> signing.properties
+          printf 'keyPassword=%s\n' "$KEY_STORE_PASSWORD" >> signing.properties
+          printf 'storeFile=../key.jks\n' >> signing.properties
+          printf '%s' "$SIGNING_KEY" | base64 --decode > key.jks
       - name: Build Release APK
         if: contains(github.event.head_commit.message, '[release]')
         run: ./gradlew assembleRelease
