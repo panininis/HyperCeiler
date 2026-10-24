@@ -107,8 +107,8 @@ android {
         }
     }
 
-    val properties: Properties? = loadPropertiesFromFile("signing.properties")
-    fun getString(propertyName: String, environmentName: String, prompt: String): String =
+val properties: Properties? = loadPropertiesFromFile("signing.properties")
+    ?.takeIf { it.getProperty("storeFile").orEmpty().isNotBlank() }    fun getString(propertyName: String, environmentName: String, prompt: String): String =
         properties?.getProperty(propertyName)
             ?: System.getenv(environmentName)
             ?: System.console()?.readLine("\n$prompt: ").orEmpty()
